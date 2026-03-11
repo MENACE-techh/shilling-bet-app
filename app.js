@@ -1,15 +1,12 @@
 require('dotenv').config();
-const fs = require('fs');
 const express = require('express');
 const axios = require('axios');
+const path = require('path');
 const app = express();
-app.use(express.json());
-app.use(express.static('public'));
 
-// 1. const consumerKey = process.env.MPESA_CONSUMER_KEY;
 const consumerKey = process.env.MPESA_CONSUMER_KEY;
 const consumerSecret = process.env.MPESA_CONSUMER_SECRET;
-const shortcode = process.env.MPESA_SHORTCODE;
+const shortcode = process.env.MPESA_SHORTCODE || "174379";
 const passkey = process.env.MPESA_PASSKEY;
 // 2. GAME ENGINE STATE
 let players = []; 

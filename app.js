@@ -25,7 +25,7 @@ setInterval(() => {
         console.log("--- 🏆 DRAWING RESULTS ---");
         if (players.length > 0) {
             const randomIndex = Math.floor(Math.random() * players.length);
-            lastWinner = players[randomIndex];
+           lastWinner = maskNumber(players[randomIndex]);
 
             // 💰 THE REVENUE CALCULATOR
             const totalPot = players.length * 1; // 1 KES per player
@@ -37,6 +37,9 @@ setInterval(() => {
             fs.appendFileSync('winners_log.txt', logEntry);
 
             console.log(`🏆 WINNER PICKED: ${lastWinner} | YOUR REVENUE: ${houseCut} KES`);
+            function maskNumber(number) {
+    return number.slice(0, 4) + "****" + number.slice(-3);
+}
         } else {
             lastWinner = "No players this round.";
             console.log("⚠️ No players participated.");

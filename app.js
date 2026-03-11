@@ -8,6 +8,13 @@ const consumerKey = process.env.MPESA_CONSUMER_KEY;
 const consumerSecret = process.env.MPESA_CONSUMER_SECRET;
 const shortcode = process.env.MPESA_SHORTCODE || "174379";
 const passkey = process.env.MPESA_PASSKEY;
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 // 2. GAME ENGINE STATE
 let players = []; 
 let timeLeft = 60;

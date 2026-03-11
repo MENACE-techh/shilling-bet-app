@@ -129,6 +129,41 @@ app.get('/recent-winners', (req, res) => {
     }
 });
 
+app.get('/admin-dashboard-secret-stats', (req, res) => {
+    try {
+        const data = fs.readFileSync('winners_log.txt', 'utf8');
+        const lines = data.trim().split('\n');
+        
+        let totalRevenue = 0;
+        let totalDraws = lines.length;
+        let totalPrizePaid = 0;
+
+        lines.forEach(line => {
+            const revenueMatch = line.match(/MY REVENUE: ([\d.]+) KES/);
+            const prizeMatch = line.match(/PRIZE: ([\d.]+) KES/);
+            
+            if (revenueMatch) totalRevenue += parseFloat(revenueMatch[1]);
+            if (prizeMatch) totalPrizePaid += parseFloat(prizeMatch[1]);
+        });
+
+        // Send back a simple, clean report
+        res.send(`
+            <body style="font-family:sans-serif; background:#121212; color:white; padding:40px;">
+                <h1>💰 Shilling-A-Minute Revenue Report</h1>
+                <hr border="1" color="#333">
+                <div style="font-size:1.5rem; margin-top:20px;">
+                    <p>Total Draws Conducted: <strong>${totalDraws}</strong></p>
+                    <p>Total Prize Money Won: <strong style="color:#4CAF50;">${totalPrizePaid.toFixed(2)} KES</strong></p>
+                    <p><b>Your Total Profit (20%): <span style="color:#ffeb3b; font-size:2rem;">${totalRevenue.toFixed(2)} KES</span></b></p>
+                </div>
+                <button onclick="location.reload()" style="padding:10px 20px; background:#4CAF50; color:white; border:none; border-radius:5px; cursor:pointer;">Refresh Stats</button>
+                <p style="margin-top:50px; color:#555; font-size:0.8rem;">Keep this URL secret, Donson.</p>
+            </body>
+        `);
+    } catch (err) {
+        res.send("<h1>No data found yet. Start some games!</h1>");
+    }
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 ENGINE READY ON PORT ${PORT}`);

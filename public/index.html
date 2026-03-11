@@ -3,99 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shilling-A-Minute</title>
+    <title>Shilling-A-Minute | Win Big</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
-        .card { border: 1px solid #333; padding: 20px; border-radius: 15px; margin: 10px auto; max-width: 400px; }
-        #timer { font-size: 80px; font-weight: bold; color: #4CAF50; margin: 20px 0; }
-        input { padding: 15px; width: 80%; border-radius: 5px; border: none; margin-bottom: 10px; font-size: 18px; }
-        button { background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 5px; cursor: pointer; width: 90%; }
-        .status { color: #888; font-size: 14px; margin-top: 10px; }
-        .winner-box { background: #111; padding: 15px; border-radius: 10px; border: 1px dashed #4CAF50; }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 20px; }
+        .container { max-width: 400px; margin: auto; background: #2d2d2d; padding: 20px; border-radius: 15px; border: 2px solid #4CAF50; }
+        h1 { color: #4CAF50; margin-bottom: 5px; }
+        .timer { font-size: 3rem; font-weight: bold; color: #ffeb3b; margin: 20px 0; }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 20px; background: #3d3d3d; padding: 10px; border-radius: 10px; }
+        input { width: 80%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; font-size: 1rem; }
+        button { width: 85%; padding: 15px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+        button:hover { background: #45a049; }
+        .winner-box { margin-top: 20px; padding: 10px; border-top: 1px solid #555; font-style: italic; color: #aaa; }
+        #status-msg { margin-top: 10px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-    <h1>Shilling-A-Minute</h1>
-    <p>Survivor-Built. Kenya-Proud. KE</p>
+    <div class="container">
+        <h1>Shilling-A-Minute</h1>
+        <p>Entry: 1 KES | Draw every 60s</p>
+        
+        <div class="timer" id="timer">00:60</div>
 
-    <div class="card">
-        <p>NEXT DRAW IN</p>
-        <div id="timer">60s</div>
-    </div>
+        <div class="stats">
+            <div>Players: <span id="player-count">0</span></div>
+            <div>Jackpot: <span id="jackpot">0</span> KES</div>
+        </div>
 
-    <div class="card">
-        <input type="text" id="phone" placeholder="2547XXXXXXXX" value="254708374149">
-        <button onclick="joinGame()" id="btn-text">Join Game (1 KES)</button>
-        <div class="status" id="status-msg">System Status: <span style="color:#4CAF50">● LIVE</span></div>
-    </div>
+        <input type="number" id="phone" placeholder="2547XXXXXXXX" required>
+        <button onclick="joinGame()" id="join-btn">JOIN GAME</button>
+        <p id="status-msg"></p>
 
-    <div class="card winner-box">
-        <p>🏆 RECENT WINNER 🏆</p>
-        <h3 id="last-winner">Waiting for draw...</h3>
-        <p id="player-count">0 Active Players</p>
+        <div class="winner-box">
+            Last Winner: <span id="last-winner">Waiting...</span>
+        </div>
     </div>
 
     <script>
-        // 1. THE ACTION: SEND PAYMENT PROMPT
-       async function joinGame() {
-    const phone = document.getElementById('phone').value;
-    const btn = document.getElementById('btn-text'); // This is your button!
-    const statusMsg = document.getElementById('status-msg');
-
-    // 🛑 STAGE 1: LOCK THE BUTTON
-    btn.disabled = true; 
-    btn.innerText = "Processing Prompt...";
-    statusMsg.innerText = "Check your phone for the M-Pesa popup...";
-
-    try {
-        const response = await fetch('/join', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone })
-        });
-
-        const data = await response.json();
-        
-        if (data.success) {
-            statusMsg.innerText = "Prompt Sent! Enter your PIN.";
-        } else {
-            statusMsg.innerText = "Error: " + (data.error || "Failed to send prompt.");
-        }
-    } catch (err) {
-        statusMsg.innerText = "Network error. Try again.";
-    } finally {
-        // 🛑 STAGE 2: UNLOCK AFTER 5 SECONDS
-        setTimeout(() => {
-            btn.disabled = false;
-            btn.innerText = "Join Game (1 KES)";
-        }, 5000); 
-    }
-}
-        // 2. THE HEARTBEAT: UPDATE TIMER & WINNER EVERY SECOND
-        async function updateGameStatus() {
+        // Update game status every second
+        async function updateStatus() {
             try {
-                const response = await fetch('/game-status');
-                const data = await response.json();
-
-                // Update UI elements
-                document.getElementById('timer').innerText = `${data.timeLeft}s`;
+                const res = await fetch('/game-status');
+                const data = await res.json();
+                
+                document.getElementById('timer').innerText = `00:${data.timeLeft < 10 ? '0' : ''}${data.timeLeft}`;
+                document.getElementById('player-count').innerText = data.activePlayers;
+                document.getElementById('jackpot').innerText = data.jackpot;
                 document.getElementById('last-winner').innerText = data.lastWinner;
-                document.getElementById('player-count').innerText = `${data.activePlayers} Active Players`;
-
-                // Visual warning when time is low
-                if (data.timeLeft <= 10) {
-                    document.getElementById('timer').style.color = "#ff4444";
-                } else {
-                    document.getElementById('timer').style.color = "#4CAF50";
-                }
             } catch (err) {
-                console.log("Waiting for server...");
+                console.error("Error fetching status");
             }
         }
 
-        // Start the loop
-        setInterval(updateGameStatus, 1000);
+        async function joinGame() {
+            const phone = document.getElementById('phone').value;
+            const btn = document.getElementById('join-btn');
+            const msg = document.getElementById('status-msg');
+
+            if (!phone || phone.length < 10) {
+                alert("Please enter a valid M-Pesa number (254...)");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "PROCESSING...";
+            msg.innerText = "Checking M-Pesa connection...";
+
+            try {
+                const res = await fetch('/join', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: phone })
+                });
+                
+                const data = await res.json();
+                if (data.success) {
+                    msg.style.color = "#4CAF50";
+                    msg.innerText = "✔ Prompt sent! Check your phone.";
+                } else {
+                    msg.style.color = "#ff5252";
+                    msg.innerText = "❌ Error sending prompt. Try again.";
+                }
+            } catch (err) {
+                msg.innerText = "❌ Network error. Is the server live?";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "JOIN GAME";
+            }
+        }
+
+        setInterval(updateStatus, 1000);
     </script>
 </body>
 </html>

@@ -5,18 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shilling-A-Minute | Win Big</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 20px; }
-        .container { max-width: 400px; margin: auto; background: #2d2d2d; padding: 20px; border-radius: 15px; border: 2px solid #4CAF50; box-shadow: 0 0 20px rgba(76, 175, 80, 0.2); }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 20px; overflow-x: hidden; }
+        .container { max-width: 400px; margin: auto; background: #2d2d2d; padding: 20px; border-radius: 15px; border: 2px solid #4CAF50; box-shadow: 0 0 20px rgba(76, 175, 80, 0.2); position: relative; }
+        
+        /* The Winner's Pulse Animation */
+        @keyframes goldPulse {
+            0% { box-shadow: 0 0 0px #ffeb3b; border-color: #4CAF50; }
+            50% { box-shadow: 0 0 30px #ffeb3b; border-color: #ffeb3b; }
+            100% { box-shadow: 0 0 0px #ffeb3b; border-color: #4CAF50; }
+        }
+        .celebrate { animation: goldPulse 1.5s infinite; }
+
         h1 { color: #4CAF50; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; }
         .timer { font-size: 3.5rem; font-weight: bold; color: #ffeb3b; margin: 15px 0; text-shadow: 0 0 10px rgba(255, 235, 59, 0.5); }
         .stats { display: flex; justify-content: space-around; margin-bottom: 20px; background: #3d3d3d; padding: 15px; border-radius: 10px; border: 1px solid #444; }
         input { width: 85%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #444; background: #1a1a1a; color: white; font-size: 1.1rem; text-align: center; }
         button { width: 92%; padding: 15px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1.2rem; transition: 0.3s; }
         button:hover { background: #45a049; transform: scale(1.02); }
-        button:disabled { background: #666; cursor: not-allowed; }
         
         .hall-of-fame { margin-top: 30px; text-align: left; }
-        .hall-of-fame h3 { color: #4CAF50; border-bottom: 1px solid #4CAF50; padding-bottom: 5px; font-size: 0.9rem; }
+        .hall-of-fame h3 { color: #ffeb3b; border-bottom: 1px solid #ffeb3b; padding-bottom: 5px; font-size: 0.9rem; text-transform: uppercase; }
         #winners-list { list-style: none; padding: 0; font-size: 0.85rem; color: #aaa; }
         #winners-list li { padding: 8px 0; border-bottom: 1px solid #333; display: flex; justify-content: space-between; }
         .winner-tag { color: #ffeb3b; font-weight: bold; }
@@ -25,7 +33,7 @@
 </head>
 <body>
 
-    <div class="container">
+    <div class="container" id="main-box">
         <h1>Shilling-A-Minute</h1>
         <p style="color: #888;">Survivor-Built. Kenya-Proud. KE</p>
         
@@ -41,43 +49,50 @@
         <p id="status-msg"></p>
 
         <div class="hall-of-fame">
-            <h3>🏆 RECENT WINNERS</h3>
+            <h3>🏆 RECENT PAYOUTS</h3>
             <ul id="winners-list">
-                <li>Loading recent draws...</li>
+                <li>Syncing with Safaricom...</li>
             </ul>
         </div>
     </div>
 
     <script>
-        // Update game status & winners
+        let currentWinner = "";
+
         async function updateStatus() {
             try {
-                // 1. Get Game Stats
                 const res = await fetch('/game-status');
                 const data = await res.json();
+                
                 document.getElementById('timer').innerText = `00:${data.timeLeft < 10 ? '0' : ''}${data.timeLeft}`;
                 document.getElementById('player-count').innerText = data.activePlayers;
                 document.getElementById('jackpot').innerText = data.jackpot;
 
-                // 2. Get Recent Winners
+                // TRIGGER CELEBRATION: If a new winner is detected
+                if (data.lastWinner !== currentWinner && !data.lastWinner.includes("Waiting")) {
+                    currentWinner = data.lastWinner;
+                    triggerCelebration();
+                }
+
                 const winRes = await fetch('/recent-winners');
                 const winData = await winRes.json();
                 const list = document.getElementById('winners-list');
                 
                 if (winData.winners.length > 0) {
                     list.innerHTML = winData.winners.map(line => {
-                        // Formatting the log string for display
                         const parts = line.split('|');
                         const winner = parts[2] ? parts[2].replace('WINNER:', '').trim() : 'Unknown';
                         const prize = parts[3] ? parts[3].replace('PRIZE:', '').trim() : '0 KES';
                         return `<li><span class="winner-tag">${winner}</span> <span>Won ${prize}</span></li>`;
                     }).join('');
-                } else {
-                    list.innerHTML = "<li>No winners yet. Be the first!</li>";
                 }
-            } catch (err) {
-                console.error("Status check failed");
-            }
+            } catch (err) { console.log("Status error"); }
+        }
+
+        function triggerCelebration() {
+            const box = document.getElementById('main-box');
+            box.classList.add('celebrate');
+            setTimeout(() => { box.classList.remove('celebrate'); }, 5000); // Pulse for 5 seconds
         }
 
         async function joinGame() {
@@ -85,19 +100,11 @@
             const btn = document.getElementById('join-btn');
             const msg = document.getElementById('status-msg');
 
-            // Driver's Trick: Auto-fix phone numbers starting with 0
-            if (phone.startsWith('0')) {
-                phone = '254' + phone.substring(1);
-            }
-
-            if (!phone || phone.length < 10) {
-                alert("Enter valid M-Pesa number (e.g. 254712345678)");
-                return;
-            }
+            if (phone.startsWith('0')) { phone = '254' + phone.substring(1); }
 
             btn.disabled = true;
             btn.innerText = "WAITING FOR M-PESA...";
-            msg.innerText = "Sending STK Push to " + phone + "...";
+            msg.innerText = "Check your phone for the STK Push!";
 
             try {
                 const res = await fetch('/join', {
@@ -105,25 +112,23 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone: phone })
                 });
-                
                 const data = await res.json();
                 if (data.success) {
                     msg.style.color = "#4CAF50";
-                    msg.innerText = "✔ Prompt sent! Check your phone.";
+                    msg.innerText = "✔ Prompt sent successfully!";
                 } else {
                     msg.style.color = "#ff5252";
-                    msg.innerText = "❌ M-Pesa Error. Try again.";
+                    msg.innerText = "❌ Transaction error. Please try again.";
                 }
-            } catch (err) {
-                msg.innerText = "❌ Connection failed.";
-            } finally {
-                btn.disabled = false;
+            } catch (err) { msg.innerText = "❌ Connection failed."; }
+            finally { 
+                btn.disabled = false; 
                 btn.innerText = "JOIN GAME (1 KES)";
             }
         }
 
-        setInterval(updateStatus, 2000); // Check every 2 seconds
-        updateStatus(); // Initial check
+        setInterval(updateStatus, 2000);
+        updateStatus();
     </script>
 </body>
 </html>

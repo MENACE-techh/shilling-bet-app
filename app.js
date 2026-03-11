@@ -72,8 +72,7 @@ app.post('/join', async (req, res) => {
     const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
     const password = Buffer.from(shortcode + passkey + timestamp).toString('base64');
     
-    // ⚠️ PASTE YOUR NEW NGROK LINK HERE (Must end with /callback)
-    const callBackURL = "https://ungrappled-dahlia-scrimpily.ngrok-free.dev/callback";
+    const callBackURL = "https://shilling-win.onrender.com/callback";
 
     try {
        await axios.post('https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest', {

@@ -4,10 +4,10 @@ const axios = require('axios');
 const path = require('path');
 const app = express();
 
-const consumerKey = process.env.MPESA_CONSUMER_KEY;
-const consumerSecret = process.env.MPESA_CONSUMER_SECRET;
-const shortcode = process.env.MPESA_SHORTCODE || "174379";
-const passkey = process.env.MPESA_PASSKEY;
+const consumerKey = (process.env.MPESA_CONSUMER_KEY || "").trim();
+const consumerSecret = (process.env.MPESA_CONSUMER_SECRET || "").trim();
+const shortcode = (process.env.MPESA_SHORTCODE || "174379").trim();
+const passkey = (process.env.MPESA_PASSKEY || "").trim();
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));

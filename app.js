@@ -6,10 +6,10 @@ const app = express();
 app.use(express.json());
 app.use(express.static('public'));
 
-// 1. DARAJA CREDENTIALS - COPIED EXACTLY FROM YOUR SCREENSHOT
+// 1. const consumerKey = process.env.MPESA_CONSUMER_KEY;
 const consumerKey = process.env.MPESA_CONSUMER_KEY;
 const consumerSecret = process.env.MPESA_CONSUMER_SECRET;
-const shortcode = "3407935"; 
+const shortcode = process.env.MPESA_SHORTCODE;
 const passkey = process.env.MPESA_PASSKEY;
 // 2. GAME ENGINE STATE
 let players = []; 

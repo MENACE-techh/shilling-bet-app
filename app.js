@@ -69,11 +69,11 @@ async function getAccessToken() {
     }
 }
 
-// 5. STK PUSH ROUTE
+// UPDATED STK PUSH ROUTE
 app.post('/join', async (req, res) => {
-    const phone = req.body.phone;
+    const { phone, amount } = req.body; // CRITICAL: This pulls the 1, 5, or 10 KES from the button click
     const token = await getAccessToken();
-    if (!token) return res.status(500).json({ success: false, error: "Auth failed" });
+    if (!token) return res.status(500).json({ success: false });
 
     const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
     const password = Buffer.from(shortcode + passkey + timestamp).toString('base64');
@@ -81,23 +81,22 @@ app.post('/join', async (req, res) => {
     const callBackURL = "https://shilling-win.onrender.com/callback";
 
     try {
-        // CHANGED TO SANDBOX URL to match the token generator above
-        await axios.post('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest', {
+       await axios.post('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest', {
             BusinessShortCode: shortcode,
             Password: password,
             Timestamp: timestamp,
             TransactionType: "CustomerPayBillOnline",
-            Amount: 1,
+            Amount: amount, // This is now dynamic!
             PartyA: phone,
             PartyB: shortcode,
             PhoneNumber: phone,
             CallBackURL: callBackURL,
-            AccountReference: "ShillingMin",
+            AccountReference: "ShillingWin",
             TransactionDesc: "Entry"
         }, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        console.log(`📱 Prompt Sent to: ${phone}`);
+        console.log(`📱 ${amount} KES Prompt Sent to: ${phone}`);
         res.json({ success: true });
     } catch (error) {
         console.error("❌ M-Pesa Error:", JSON.stringify(error.response?.data || error.message));

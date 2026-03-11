@@ -3,64 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shilling-A-Minute | Win Big</title>
+    <title>Shilling-A-Minute | Official</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 20px; overflow-x: hidden; }
-        .container { max-width: 400px; margin: auto; background: #2d2d2d; padding: 20px; border-radius: 15px; border: 2px solid #4CAF50; box-shadow: 0 0 20px rgba(76, 175, 80, 0.2); position: relative; }
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; text-align: center; padding: 20px; overflow-x: hidden; }
+        .container { max-width: 400px; margin: auto; background: #1e1e1e; padding: 25px; border-radius: 20px; border: 2px solid #4CAF50; box-shadow: 0 0 25px rgba(76, 175, 80, 0.1); position: relative; transition: 0.5s; }
         
         /* The Winner's Pulse Animation */
         @keyframes goldPulse {
             0% { box-shadow: 0 0 0px #ffeb3b; border-color: #4CAF50; }
-            50% { box-shadow: 0 0 30px #ffeb3b; border-color: #ffeb3b; }
+            50% { box-shadow: 0 0 40px #ffeb3b; border-color: #ffeb3b; transform: scale(1.02); }
             100% { box-shadow: 0 0 0px #ffeb3b; border-color: #4CAF50; }
         }
         .celebrate { animation: goldPulse 1.5s infinite; }
 
-        h1 { color: #4CAF50; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; }
-        .timer { font-size: 3.5rem; font-weight: bold; color: #ffeb3b; margin: 15px 0; text-shadow: 0 0 10px rgba(255, 235, 59, 0.5); }
-        .stats { display: flex; justify-content: space-around; margin-bottom: 20px; background: #3d3d3d; padding: 15px; border-radius: 10px; border: 1px solid #444; }
-        input { width: 85%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #444; background: #1a1a1a; color: white; font-size: 1.1rem; text-align: center; }
-        button { width: 92%; padding: 15px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1.2rem; transition: 0.3s; }
-        button:hover { background: #45a049; transform: scale(1.02); }
+        h1 { color: #4CAF50; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; font-size: 1.5rem; }
+        .timer { font-size: 4rem; font-weight: bold; color: #ffeb3b; margin: 10px 0; text-shadow: 0 0 15px rgba(255, 235, 59, 0.4); }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 20px; background: #2a2a2a; padding: 15px; border-radius: 12px; border: 1px solid #333; }
         
+        input { width: 90%; padding: 15px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #121212; color: white; font-size: 1.2rem; text-align: center; outline: none; }
+        input:focus { border-color: #4CAF50; }
+
+        /* Multi-Tier Buttons */
+        .btn-group { display: flex; justify-content: space-between; gap: 10px; margin: 15px 0; }
+        .amt-btn { flex: 1; padding: 15px 5px; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1.1rem; line-height: 1.2; }
+        .amt-btn small { font-size: 0.7rem; display: block; opacity: 0.9; }
+        
+        .btn-1 { background: #4CAF50; }
+        .btn-5 { background: #2196F3; }
+        .btn-10 { background: #E91E63; }
+        .amt-btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
+        .amt-btn:disabled { background: #555; cursor: not-allowed; transform: none; }
+
         .hall-of-fame { margin-top: 30px; text-align: left; }
-        .hall-of-fame h3 { color: #ffeb3b; border-bottom: 1px solid #ffeb3b; padding-bottom: 5px; font-size: 0.9rem; text-transform: uppercase; }
-        #winners-list { list-style: none; padding: 0; font-size: 0.85rem; color: #aaa; }
-        #winners-list li { padding: 8px 0; border-bottom: 1px solid #333; display: flex; justify-content: space-between; }
+        .hall-of-fame h3 { color: #ffeb3b; border-bottom: 1px solid #333; padding-bottom: 8px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        #winners-list { list-style: none; padding: 0; font-size: 0.9rem; color: #bbb; }
+        #winners-list li { padding: 10px 0; border-bottom: 1px solid #2a2a2a; display: flex; justify-content: space-between; align-items: center; }
         .winner-tag { color: #ffeb3b; font-weight: bold; }
-        #status-msg { margin-top: 10px; font-size: 0.9rem; font-weight: bold; }
+        #status-msg { margin-top: 15px; font-size: 0.95rem; font-weight: bold; min-height: 20px; }
     </style>
 </head>
 <body>
 
+    <audio id="win-sound" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+
     <div class="container" id="main-box">
         <h1>Shilling-A-Minute</h1>
-        <p style="color: #888;">Survivor-Built. Kenya-Proud. KE</p>
+        <p style="color: #666; font-size: 0.8rem; margin-top: -5px;">LIVE M-PESA DRAW | KENYA</p>
         
         <div class="timer" id="timer">00:60</div>
 
         <div class="stats">
-            <div>Players: <span id="player-count">0</span></div>
-            <div>Jackpot: <span id="jackpot">0</span> KES</div>
+            <div>Players: <b id="player-count">0</b></div>
+            <div>Jackpot: <b id="jackpot">0</b> <small>KES</small></div>
         </div>
 
-        <input type="number" id="phone" placeholder="2547XXXXXXXX" required>
-        <button onclick="joinGame()" id="join-btn">JOIN GAME (1 KES)</button>
+        <input type="number" id="phone" placeholder="Enter M-Pesa Number" required>
+        
+        <p style="font-size: 0.75rem; color: #888; margin-bottom: 5px;">SELECT ENTRY AMOUNT</p>
+        <div class="btn-group">
+            <button onclick="joinGame(1)" class="amt-btn btn-1" id="btn-1">1<small>KES</small></button>
+            <button onclick="joinGame(5)" class="amt-btn btn-5" id="btn-5">5<small>KES</small></button>
+            <button onclick="joinGame(10)" class="amt-btn btn-10" id="btn-10">10<small>KES</small></button>
+        </div>
+
         <p id="status-msg"></p>
 
         <div class="hall-of-fame">
             <h3>🏆 RECENT PAYOUTS</h3>
             <ul id="winners-list">
-                <li>Syncing with Safaricom...</li>
+                <li>Waiting for next draw...</li>
             </ul>
         </div>
     </div>
 
     <script>
-        let currentWinner = "";
+        let lastKnownWinner = "";
 
         async function updateStatus() {
             try {
+                // Fetch Game Data
                 const res = await fetch('/game-status');
                 const data = await res.json();
                 
@@ -68,12 +89,13 @@
                 document.getElementById('player-count').innerText = data.activePlayers;
                 document.getElementById('jackpot').innerText = data.jackpot;
 
-                // TRIGGER CELEBRATION: If a new winner is detected
-                if (data.lastWinner !== currentWinner && !data.lastWinner.includes("Waiting")) {
-                    currentWinner = data.lastWinner;
-                    triggerCelebration();
+                // WINNER DETECTION & CELEBRATION
+                if (data.lastWinner !== lastKnownWinner && !data.lastWinner.includes("Waiting") && !data.lastWinner.includes("No players")) {
+                    lastKnownWinner = data.lastWinner;
+                    triggerWinEffects();
                 }
 
+                // Fetch Winner List
                 const winRes = await fetch('/recent-winners');
                 const winData = await winRes.json();
                 const list = document.getElementById('winners-list');
@@ -81,54 +103,73 @@
                 if (winData.winners.length > 0) {
                     list.innerHTML = winData.winners.map(line => {
                         const parts = line.split('|');
-                        const winner = parts[2] ? parts[2].replace('WINNER:', '').trim() : 'Unknown';
+                        const winner = parts[2] ? parts[2].replace('WINNER:', '').trim() : '---';
                         const prize = parts[3] ? parts[3].replace('PRIZE:', '').trim() : '0 KES';
-                        return `<li><span class="winner-tag">${winner}</span> <span>Won ${prize}</span></li>`;
+                        return `<li><span class="winner-tag">📱 ${winner}</span> <span>Won <b>${prize}</b></span></li>`;
                     }).join('');
                 }
-            } catch (err) { console.log("Status error"); }
+            } catch (err) { console.log("Status update failed."); }
         }
 
-        function triggerCelebration() {
+        function triggerWinEffects() {
             const box = document.getElementById('main-box');
+            const sound = document.getElementById('win-sound');
+            
+            // Play sound (Modern browsers may block this unless user has interacted)
+            sound.play().catch(e => console.log("Sound blocked by browser"));
+            
+            // Gold Pulse Effect
             box.classList.add('celebrate');
-            setTimeout(() => { box.classList.remove('celebrate'); }, 5000); // Pulse for 5 seconds
+            setTimeout(() => { box.classList.remove('celebrate'); }, 6000); 
         }
 
-        async function joinGame() {
+        async function joinGame(amount) {
             let phone = document.getElementById('phone').value;
-            const btn = document.getElementById('join-btn');
             const msg = document.getElementById('status-msg');
+            const buttons = document.querySelectorAll('.amt-btn');
 
+            // Auto-format phone
             if (phone.startsWith('0')) { phone = '254' + phone.substring(1); }
+            if (phone.startsWith('+')) { phone = phone.substring(1); }
 
-            btn.disabled = true;
-            btn.innerText = "WAITING FOR M-PESA...";
-            msg.innerText = "Check your phone for the STK Push!";
+            if (!phone || phone.length < 10) {
+                alert("Please enter a valid M-Pesa phone number!");
+                return;
+            }
+
+            // Disable UI during processing
+            buttons.forEach(b => b.disabled = true);
+            msg.style.color = "#ffeb3b";
+            msg.innerText = `Requesting ${amount} KES... Check Phone!`;
 
             try {
                 const res = await fetch('/join', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone: phone })
+                    body: JSON.stringify({ phone: phone, amount: amount })
                 });
+                
                 const data = await res.json();
                 if (data.success) {
                     msg.style.color = "#4CAF50";
-                    msg.innerText = "✔ Prompt sent successfully!";
+                    msg.innerText = "✔ Prompt Sent! Complete on your phone.";
                 } else {
                     msg.style.color = "#ff5252";
-                    msg.innerText = "❌ Transaction error. Please try again.";
+                    msg.innerText = "❌ M-Pesa error. Try again.";
                 }
-            } catch (err) { msg.innerText = "❌ Connection failed."; }
-            finally { 
-                btn.disabled = false; 
-                btn.innerText = "JOIN GAME (1 KES)";
+            } catch (err) {
+                msg.innerText = "❌ Connection failed. Is the server live?";
+            } finally {
+                setTimeout(() => {
+                    buttons.forEach(b => b.disabled = false);
+                    msg.innerText = "";
+                }, 5000);
             }
         }
 
+        // Heartbeat: Update every 2 seconds
         setInterval(updateStatus, 2000);
-        updateStatus();
+        updateStatus(); // Run immediately on load
     </script>
 </body>
 </html>
